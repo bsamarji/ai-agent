@@ -1,2 +1,4 @@
 .venv/
 .env
+pyproject.toml
+.python-version
