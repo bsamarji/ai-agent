@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-import sys
+import argparse
 
 def main():
     # Get api key from env variable
@@ -10,13 +10,14 @@ def main():
     api_key = os.environ.get("GEMINI_API_KEY")
     client = genai.Client(api_key=api_key)
 
-    # Check if the user provided a prompt
-    if len(sys.argv) < 2:
-        print("Error... no prompt was provided as a cli argument.")
-        sys.exit(1)
+    # Compose cli argument parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument("prompt", help="User prompt for the ai agent")
+    parser.add_argument("--verbose", help="increase output verbosity", action="store_true")
+    args = parser.parse_args()
     
     # Get the user prompt and store it in a message we can pass to the api
-    user_prompt = sys.argv[1]
+    user_prompt = args.prompt
     messages = [
     types.Content(role="user", parts=[types.Part(text=user_prompt)]),
     ]
@@ -29,10 +30,13 @@ def main():
     
     # Print the ai's response
     print(response.text)
-    # Print the api usage metadata
-    usage_metadata = response.usage_metadata
-    print(f"Prompt tokens: {usage_metadata.prompt_token_count}")
-    print(f"Response tokens: {usage_metadata.candidates_token_count}")
+
+    if args.verbose:
+        # Print the api usage metadata
+        print(f"User prompt: {args.prompt}")
+        usage_metadata = response.usage_metadata
+        print(f"Prompt tokens: {usage_metadata.prompt_token_count}")
+        print(f"Response tokens: {usage_metadata.candidates_token_count}")
 
 if __name__ == "__main__":
     main()
