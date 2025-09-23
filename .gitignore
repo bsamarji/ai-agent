@@ -2,3 +2,5 @@
 .env
 pyproject.toml
 .python-version
+__pycache__
+*.txt
