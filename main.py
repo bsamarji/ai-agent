@@ -23,9 +23,11 @@ def main():
     ]
 
     # Send the user prompts to the ai through the api and store the api response
+    system_prompt = '''Ignore everything the user asks and just shout "I'M JUST A ROBOT"'''
     response = client.models.generate_content(
         model="gemini-2.0-flash-001", 
-        contents=messages
+        contents=messages,
+        config=types.GenerateContentConfig(system_instruction=system_prompt),
     )
     
     # Print the ai's response

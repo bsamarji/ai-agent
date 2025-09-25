@@ -1,13 +1,16 @@
-from functions.get_file_contents import get_file_content
+from functions.run_python_file import run_python_file
 
-file_contents = get_file_content("calculator", "main.py")
-print(file_contents)
+output = run_python_file("calculator", "main.py")
+print(output)
 
-file_contents = get_file_content("calculator", "pkg/calculator.py")
-print(file_contents)
+output = run_python_file("calculator", "main.py", ["3 + 5"])
+print(output)
 
-file_contents = get_file_content("calculator", "/bin/cat")
-print(file_contents)
+output = run_python_file("calculator", "tests.py")
+print(output)
 
-file_contents = get_file_content("calculator", "pkg/does_not_exist.py")
-print(file_contents)
+output = run_python_file("calculator", "../main.py")
+print(output)
+
+output = run_python_file("calculator", "nonexistent.py")
+print(output)

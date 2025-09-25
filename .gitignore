@@ -2,5 +2,6 @@
 .env
 pyproject.toml
 .python-version
-__pycache__
+__pycache__/
 *.txt
+calculator/pkg/__pycache__
