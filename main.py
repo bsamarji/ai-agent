@@ -7,6 +7,7 @@ from functions.get_files_info import schema_get_files_info
 from functions.get_file_contents import schema_get_file_content
 from functions.run_python_file import schema_run_python_file
 from functions.write_file import schema_write_file
+from functions.call_function import call_function
 
 
 def main():
@@ -65,7 +66,11 @@ def main():
     # Print the ai's response
     function_call_part = response.function_calls[0]
     if len(response.function_calls) > 0:
-        print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+        function_result = call_function(function_call_part=function_call_part)
+        if not function_result.parts[0].function_response.response:
+            raise Exception(f"FATAL ERROR: the function '{function_call_part.name}' did not return a response.")
+        elif args.verbose:
+            print(f"-> {function_result.parts[0].function_response.response}")
     else:
         print(response.text)
 
