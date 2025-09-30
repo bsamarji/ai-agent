@@ -4,7 +4,7 @@ from google import genai
 from google.genai import types
 import argparse
 from functions.get_files_info import schema_get_files_info
-from functions.get_file_contents import schema_get_file_content
+from functions.get_file_content import schema_get_file_content
 from functions.run_python_file import schema_run_python_file
 from functions.write_file import schema_write_file
 from functions.call_function import call_function
@@ -54,32 +54,56 @@ def main():
     All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
     """
 
-    response = client.models.generate_content(
-        model="gemini-2.0-flash-001",
-        contents=messages,
-        config=types.GenerateContentConfig(
-            tools=[available_functions], 
-            system_instruction=system_prompt
-        )
-    )
+    loop = 1
+    while loop <= 20:
 
-    # Print the ai's response
-    function_call_part = response.function_calls[0]
-    if len(response.function_calls) > 0:
-        function_result = call_function(function_call_part=function_call_part)
-        if not function_result.parts[0].function_response.response:
-            raise Exception(f"FATAL ERROR: the function '{function_call_part.name}' did not return a response.")
-        elif args.verbose:
-            print(f"-> {function_result.parts[0].function_response.response}")
-    else:
-        print(response.text)
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.0-flash-001",
+                contents=messages,
+                config=types.GenerateContentConfig(
+                    tools=[available_functions], 
+                    system_instruction=system_prompt
+                )
+            )
+        except Exception as e:
+            print(f"Error encountered: {e}")
+        
+        # Get the response variations and add them to our message list for further dialogue between the model and the tool
+        for item in response.candidates:
+            messages.append(item.content)
 
-    if args.verbose:
-        # Print the api usage metadata
-        print(f"User prompt: {args.prompt}")
-        usage_metadata = response.usage_metadata
-        print(f"Prompt tokens: {usage_metadata.prompt_token_count}")
-        print(f"Response tokens: {usage_metadata.candidates_token_count}")
+        # Print the ai's response
+        if response.function_calls is None:
+            print(response.text)
+            break
+
+        elif len(response.function_calls) > 0:
+            function_call_part = response.function_calls[0]
+            function_result = call_function(function_call_part=function_call_part)
+            
+            function_message = types.Content(
+                parts=function_result.parts,
+                role="user",
+            )
+            messages.append(function_message)
+            
+            if not function_result.parts[0].function_response.response:
+                raise Exception(f"FATAL ERROR: the function '{function_call_part.name}' did not return a response.")
+            elif args.verbose:
+                print(f"-> {function_result.parts[0].function_response.response}")
+
+        else:
+            continue
+
+        if args.verbose:
+            # Print the api usage metadata
+            print(f"User prompt: {args.prompt}")
+            usage_metadata = response.usage_metadata
+            print(f"Prompt tokens: {usage_metadata.prompt_token_count}")
+            print(f"Response tokens: {usage_metadata.candidates_token_count}")
+        
+        loop += 1
 
 
 if __name__ == "__main__":
