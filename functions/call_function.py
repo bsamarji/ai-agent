@@ -18,7 +18,7 @@ def call_function(function_call_part, verbose=False):
         print(f" - Calling function: {function_call_part.name}")
 
     if function_call_part.name in func_dict:
-        function_call_part.args["working_directory"] = "./calculator"
+        function_call_part.args["working_directory"] = "./working_dir"
         func_to_call = func_dict[function_call_part.name]
         function_result = func_to_call(**function_call_part.args)
         return types.Content(
