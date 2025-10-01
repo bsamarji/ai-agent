@@ -13,7 +13,9 @@ I've created a basic ai agent that can help with writing or debugging code. The 
 
 I used the uv package manager for project management, so you need to have the uv package manager installed and you can use the `uv sync` command to install the packages specified in the uv.lock file.
 
-The agent is confined to the current working directory. This is currently hard coded to the ./calculator dir in the ./functions/call_function.py script. Be careful modifying the current working directory path, otherwise you could give the agent access to your entire file system!
+**The agent is confined to the current working directory. This is currently hard coded to the path ./working_dir in the ./functions/call_function.py script.** This is a relative path to the root directory of this project. Be careful modifying the current working directory path, otherwise you could give the agent access to your entire file system!
+
+**I recommend placing all your working files that you want the ai agent to have access to in the ./working_dir folder.**
 
 ### API Key
 
@@ -27,10 +29,10 @@ GEMINI_API_KEY="your_api_key_here"
 
 ## Usage
 
-Once you're setup then you can ask the agent any question, but it is bound to the system prompt and the current working directory. Run a sample command like the one below:
+Once you're setup then you can ask the agent any question, but remember it is bound to the system prompt and the current working directory (which is currently set to ./working_dir). Run a sample command like the one below:
 
 ```
-uv run main.py "Run my calculator app to calculate 3 * 8 + 9"
+uv run main.py "Create a calculator CLI tool in python"
 ```
 
 Remember it is a basic agent and the google LLMs are not guaranteed to be 100% accurate so you may have to play around with your prompts or tweak the `system_prompt` in main.py to get better outcomes.
